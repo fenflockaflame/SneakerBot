@@ -1,0 +1,44 @@
+import requests
+from bs4 import BeautifulSoup as bs
+import random
+
+# print("Hello World")
+
+session = requests.session()
+
+
+def get_sizes_in_stock():
+    global session
+    endpoint = 'https://www.supremenewyork.com/shop/tops-sweaters/rdr3l97xb/rhgbca4jo'
+    response = session.get(endpoint)
+
+    soup = bs(response.txt, 'html.parser')
+
+    div = soup.find("a", {"class": "data-style-id"})
+    div = soup.find("a", {"class": "data-sold-out"})
+    all_sizes = div.find_all("a")
+
+    sizes_in_stock = []
+    for size in all_sizes:
+        if "false" not in size["class"]:
+            size_id = size["id"]
+        sizes_in_stock.append(size_id.split("_")[1])
+
+    return sizes_in_stock
+
+
+print(get_sizes_in_stock)
+
+
+def add_to_cart():
+    global session
+
+    sizes_in_stock = get_sizes_in_stock()
+    size_chosen = random.choice(sizes_in_stock)
+
+    endpoint = 'https://www.supremenewyork.com/shop/%s/add' % (size_chosen)
+    print(endpoint)
+    response = session.get(endpoint)
+
+
+#add_to_cart()
